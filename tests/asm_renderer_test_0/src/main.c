@@ -76,22 +76,21 @@ int a, b, c, i, x, y;
 const int midX = 160;
 const int midY = 120;
 
-const int sizeX = 10;
-const int sizeZ = 10;
+const int sizeX = 8;
+const int sizeZ = 8;
 const int sizeY = 10;
 
-#define RNG_ITERATIONS 5
 // int scale1 = 13;
 // int scale2 = 15;
 
-uint8_t map[sizeX*sizeZ*sizeY];
+uint8_t map[8*8*10];
 
 int main(void) {
     /* Fill in the body of the main function here */
     // srand(rtc_Time(NULL));
 	sk_key_t key;
 	uint32_t time;
-	uint8_t seed[8];
+
 
     gfx_Begin();
     gfx_SetPalette(logo_gfx_pal, sizeof_logo_gfx_pal, 0);
@@ -100,57 +99,110 @@ int main(void) {
 	gfx_SetTextFGColor(6);
 	// gfx_SetDraw(1);
 	restart_test:;
-	memset(&seed, 0x66, sizeof(seed));
-	gfx_ZeroScreen();
-	gfx_PrintStringXY("press keys to add randomness.",0,0);
-	gfx_PrintStringXY("press enter to continue",0,10);
-	gfx_PrintStringXY("press clear to quit",0,20);
-	do {
-		uint8_t ch;
-		for (int i=0; i<sizeof(seed); i++) {
-			gfx_SetColor(seed[i]>>4);
-			gfx_FillRectangle(i*8+0, 50, 4, 6);
-			gfx_SetColor(seed[i]&15);
-			gfx_FillRectangle(i*8+4, 50, 4, 6);
-		}
-		while (!(key=os_GetCSC()));
-		ch = key;
-		for (int j=0; j<RNG_ITERATIONS; j++) {
-			for (int i=0; i<sizeof(seed); i++) {
-				uint8_t nextch = seed[i];
-				seed[i] = ((seed[i]<<2) ^ ch) * 3;
-				ch = nextch;
-			}
-		}
+    generateMap(); // scene
+    do {
+		gfx_ZeroScreen();
+		timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
+		timer_Set(1, 0);
+		drawMap();
+		time = timer_Get(1);
+		timer_Disable(1);
+		gfx_PrintStringXY("ASM:", 0, 0);
+		gfx_PrintInt((time*1000)/32768, 6);
+		gfx_PrintString("ms");
+		// SwapDraw();
+		while (!(key = os_GetCSC()));
 		if (key == sk_Clear) goto end;
 	} while (key != sk_Enter);
-	memset(map, 0xFF, sizeof(map)); // air
-	for (int i=0; i<sizeof(seed); i++) {
-		int y = ((seed[i]>>3)&7)^(seed[i]&7);
-		int z = (seed[i]>>3)&7;
-		if (seed[i]&0x40) {
-			//horizontal
-			if (seed[i]&0x80) {
-				// horizontal bar x
-				for (int x=0; x<sizeX-(seed[i]&7); x++) {
-					if (x&1) map[x + z*sizeX + y*sizeX*sizeZ] = 12;
-					else     map[x + z*sizeX + y*sizeX*sizeZ] = 6;
-				}
-			} else {
-				// horizontal bar z
-				for (int x=0; x<sizeZ-(seed[i]&7); x++) {
-					if (x&1) map[z + x*sizeX + y*sizeX*sizeZ] = 12;
-					else     map[z + x*sizeX + y*sizeX*sizeZ] = 6;
-				}
+
+	// gfx_SetDraw(0);
+    do {
+		gfx_ZeroScreen();
+		timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
+		timer_Set(1, 0);
+		drawMap_C();
+		time = timer_Get(1);
+		timer_Disable(1);
+		gfx_PrintStringXY("C:", 18, 0);
+		gfx_PrintInt((time*1000)/32768, 6);
+		gfx_PrintString("ms");
+		while (!(key = os_GetCSC()));
+		if (key == sk_Clear) goto end;
+	} while (key != sk_Enter);
+
+	memset(map, 7, sizeX*sizeZ*(sizeY-1)); // stone cube
+	do {
+		gfx_ZeroScreen();
+		timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
+		timer_Set(1, 0);
+		drawMap();
+		time = timer_Get(1);
+		timer_Disable(1);
+		gfx_PrintStringXY("ASM:", 0, 0);
+		gfx_PrintInt((time*1000)/32768, 6);
+		gfx_PrintString("ms");
+		// SwapDraw();
+		while (!(key = os_GetCSC()));
+		if (key == sk_Clear) goto end;
+	} while (key != sk_Enter);
+
+	// gfx_SetDraw(0);
+    do {
+		gfx_ZeroScreen();
+		timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
+		timer_Set(1, 0);
+		drawMap_C();
+		time = timer_Get(1);
+		timer_Disable(1);
+		gfx_PrintStringXY("C:", 18, 0);
+		gfx_PrintInt((time*1000)/32768, 6);
+		gfx_PrintString("ms");
+		while (!(key = os_GetCSC()));
+		if (key == sk_Clear) goto end;
+	} while (key != sk_Enter);
+
+	memset(map, 9, sizeX*sizeZ*(sizeY-1)); // glass cube
+	do {
+		gfx_ZeroScreen();
+		timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
+		timer_Set(1, 0);
+		drawMap();
+		time = timer_Get(1);
+		timer_Disable(1);
+		gfx_PrintStringXY("ASM:", 0, 0);
+		gfx_PrintInt((time*1000)/32768, 6);
+		gfx_PrintString("ms");
+		// SwapDraw();
+		while (!(key = os_GetCSC()));
+		if (key == sk_Clear) goto end;
+	} while (key != sk_Enter);
+
+	// gfx_SetDraw(0);
+    do {
+		gfx_ZeroScreen();
+		timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
+		timer_Set(1, 0);
+		drawMap_C();
+		time = timer_Get(1);
+		timer_Disable(1);
+		gfx_PrintStringXY("C:", 18, 0);
+		gfx_PrintInt((time*1000)/32768, 6);
+		gfx_PrintString("ms");
+		while (!(key = os_GetCSC()));
+		if (key == sk_Clear) goto end;
+	} while (key != sk_Enter);
+
+	memset(&map[sizeX*sizeZ*(sizeY-1)], 9, sizeX*sizeZ); // glass added to prior cube
+	for (int y=1; y<sizeY-2; y++) {
+		for (int z=1; z<sizeZ-1; z++) {
+			for (int x=1; x<sizeX-1; x++) {
+				map[x + z*sizeX + y*sizeX*sizeZ] = 11; // water to fill the glass cube
 			}
-		} else {
-			if (seed[i]&0x80) {
-				// column
-				for (int x=0; x<sizeY; x++) {
-					map[y + z*sizeX + x*sizeX*sizeZ] = 1;
-				}
-			}
-			// nothing
+		}
+	}
+	for (int z=1; z<sizeZ-1; z++) {
+		for (int x=1; x<sizeX-1; x++) {
+			map[x + z*sizeX + (sizeY-2)*sizeX*sizeZ] = 10; // water surface inside glass cube
 		}
 	}
 
