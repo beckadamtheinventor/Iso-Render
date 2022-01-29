@@ -2,6 +2,6 @@
 NAME           ?= ISO
 COMPRESSED     ?= YES
 ARCHIVED       ?= YES
-CFLAGS         ?= -O3
+CFLAGS         ?= -Os
 
 include $(CEDEV)/meta/makefile.mk

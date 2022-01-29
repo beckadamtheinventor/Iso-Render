@@ -25,60 +25,125 @@
 
 /* Include the sprite data */
 #include "gfx/logo_gfx.h"
+#include "isolibce.h"
 
 /* Put your function prototypes here */
 void generateMap(void);
 
-void drawMap(void);
-void drawMap_C(void);
-void SwapDraw(void);
-
 /* Put all your globals here */
 
 
-const gfx_sprite_t *blocks[15] = {
-    /* 000 */ brick_stairs_east,
-    /* 001 */ brick,
-    /* 002 */ coal_ore,
-    /* 003 */ dirt,
-    /* 004 */ grass_block,
-    /* 005 */ stone_brick_stairs_east,
-    /* 006 */ stone_brick,
-    /* 007 */ stone,
-    /* 008 */ glass_pane,
-    /* 009 */ glass_block,
-    /* 010 */ water_surface,
-    /* 011 */ water_full,
-    /* 012 */ stone_brick_2,
-    /* 013 */ stone_brick_stairs_east_2,
-    /* 014 */ stone_stairs_east
-    /* 015 */ 
-    /* 016 */ 
-    /* 017 */ 
-    /* 018 */ 
-    /* 019 */ 
-    /* 020 */ 
-    /* 021 */ 
-    /* 022 */ 
-    /* 023 */ 
-    /* 024 */ 
-    /* 025 */ 
-    /* 026 */ 
-    /* 027 */ 
-    /* 028 */ 
-    /* 029 */ 
-    /* 030 */ 
-    /* 031 */ 
+const gfx_sprite_t *blocks[] = {
+    /* 000 */ NULL,
+    /* 001 */ water_full,
+    /* 002 */ water_surface,
+    /* 003 */ glass_block,
+    /* 004 */ glass_pane_east,
+    /* 005 */ glass_pane_west,
+    /* 006 */ NULL,
+    /* 007 */ NULL,
+    /* 008 */ NULL,
+    /* 009 */ NULL,
+    /* 010 */ NULL,
+    /* 011 */ NULL,
+    /* 012 */ NULL,
+    /* 013 */ NULL,
+    /* 014 */ NULL,
+    /* 015 */ NULL,
+    /* 016 */ stone_brick_stairs_east,
+    /* 017 */ stone_brick_stairs_east_2,
+    /* 018 */ stone_stairs_east,
+    /* 019 */ brick_stairs_east,
+    /* 020 */ NULL,
+    /* 021 */ NULL,
+    /* 022 */ NULL,
+    /* 023 */ NULL,
+    /* 024 */ NULL,
+    /* 025 */ NULL,
+    /* 026 */ NULL,
+    /* 027 */ NULL,
+    /* 028 */ NULL,
+    /* 029 */ NULL,
+    /* 030 */ NULL,
+    /* 031 */ NULL,
+    /* 032 */ stone_brick_stairs_west,
+    /* 033 */ stone_brick_stairs_west_2,
+    /* 034 */ stone_stairs_west,
+    /* 035 */ brick_stairs_west,
+    /* 036 */ NULL,
+    /* 037 */ NULL,
+    /* 038 */ NULL,
+    /* 039 */ NULL,
+    /* 040 */ NULL,
+    /* 041 */ NULL,
+    /* 042 */ NULL,
+    /* 043 */ NULL,
+    /* 044 */ NULL,
+    /* 045 */ NULL,
+    /* 046 */ NULL,
+    /* 047 */ NULL,
+    /* 048 */ NULL,
+    /* 049 */ NULL,
+    /* 050 */ NULL,
+    /* 051 */ NULL,
+    /* 052 */ NULL,
+    /* 053 */ NULL,
+    /* 054 */ NULL,
+    /* 055 */ NULL,
+    /* 056 */ NULL,
+    /* 057 */ NULL,
+    /* 058 */ NULL,
+    /* 059 */ NULL,
+    /* 060 */ NULL,
+    /* 061 */ NULL,
+    /* 062 */ NULL,
+    /* 063 */ NULL,
+    /* 064 */ stone,
+    /* 065 */ grass_block,
+    /* 066 */ coal_ore,
+    /* 067 */ stone_brick,
+    /* 068 */ stone_brick_2,
+    /* 069 */ dirt, // haha funny number
+    /* 070 */ brick,
 };
+
+#define AIR 0
+#define WATER_FULL 1
+#define WATER_SURFACE 2
+#define GLASS_BLOCK 3
+#define GLASS_PANE_EAST 4
+#define GLASS_PANE_WEST 5
+
+#define STONE_BRICK_STAIRS_EAST 16
+#define STONE_BRICK_STAIRS_EAST_2 17
+#define STONE_STAIRS_EAST 18
+#define BRICK_STAIRS_EAST 19
+
+#define STONE_BRICK_STAIRS_WEST 32
+#define STONE_BRICK_STAIRS_WEST_2 33
+#define STONE_STAIRS_WEST 34
+#define BRICK_STAIRS_WEST 35
+
+#define STONE 64
+#define GRASS_BLOCK 65
+#define COAL_ORE 66
+#define STONE_BRICK 67
+#define STONE_BRICK_2 68
+#define DIRT 69
+#define BRICK 70
 
 int a, b, c, i, x, y;
 
 const int midX = 160;
-const int midY = 120;
+const int midY = 128;
 
-const int sizeX = 10;
-const int sizeZ = 10;
+const int sizeX = 8;
+const int sizeZ = 8;
 const int sizeY = 10;
+
+const iso_config_t iso_config = {
+	&blocks,  0,16, 16,16, 32,16
+};
 
 #define RNG_ITERATIONS 5
 // int scale1 = 13;
@@ -98,92 +163,87 @@ int main(void) {
 	gfx_SetTextTransparentColor(0);
 	gfx_SetTextBGColor(0);
 	gfx_SetTextFGColor(6);
+
+	iso_Init(&iso_config);
+
 	// gfx_SetDraw(1);
-	restart_test:;
-	memset(&seed, 0x66, sizeof(seed));
-	gfx_ZeroScreen();
-	gfx_PrintStringXY("press keys to add randomness.",0,0);
-	gfx_PrintStringXY("press enter to continue",0,10);
-	gfx_PrintStringXY("press clear to quit",0,20);
 	do {
-		uint8_t ch;
-		for (int i=0; i<sizeof(seed); i++) {
-			gfx_SetColor(seed[i]>>4);
-			gfx_FillRectangle(i*8+0, 50, 4, 6);
-			gfx_SetColor(seed[i]&15);
-			gfx_FillRectangle(i*8+4, 50, 4, 6);
-		}
-		while (!(key=os_GetCSC()));
-		ch = key;
-		for (int j=0; j<RNG_ITERATIONS; j++) {
+		/* memset(&seed, 0x66, sizeof(seed));
+		gfx_ZeroScreen();
+		gfx_PrintStringXY("press keys to add randomness.",0,0);
+		gfx_PrintStringXY("press enter to continue",0,10);
+		gfx_PrintStringXY("press clear to quit",0,20);
+		do {
+			uint8_t ch;
 			for (int i=0; i<sizeof(seed); i++) {
-				uint8_t nextch = seed[i];
-				seed[i] = ((seed[i]<<2) ^ ch) * 3;
-				ch = nextch;
+				gfx_SetColor(seed[i]>>4);
+				gfx_FillRectangle(i*8+0, 50, 4, 6);
+				gfx_SetColor(seed[i]&15);
+				gfx_FillRectangle(i*8+4, 50, 4, 6);
 			}
-		}
-		if (key == sk_Clear) goto end;
-	} while (key != sk_Enter);
-	memset(map, 0xFF, sizeof(map)); // air
-	for (int i=0; i<sizeof(seed); i++) {
-		int y = ((seed[i]>>3)&7)^(seed[i]&7);
-		int z = (seed[i]>>3)&7;
-		if (seed[i]&0x40) {
-			//horizontal
-			if (seed[i]&0x80) {
-				// horizontal bar x
-				for (int x=0; x<sizeX-(seed[i]&7); x++) {
-					if (x&1) map[x + z*sizeX + y*sizeX*sizeZ] = 12;
-					else     map[x + z*sizeX + y*sizeX*sizeZ] = 6;
+			while (!(key=os_GetCSC()));
+			ch = key;
+			for (int j=0; j<RNG_ITERATIONS; j++) {
+				for (int i=0; i<sizeof(seed); i++) {
+					uint8_t nextch = seed[i];
+					seed[i] = ((seed[i]<<2) ^ ch) * 3;
+					ch = nextch;
+				}
+			}
+			if (key == sk_Clear) goto end;
+		} while (key != sk_Enter);
+
+		memset(map, 0, sizeof(map)); // air
+		for (int i=0; i<sizeof(seed); i++) {
+			int y = ((seed[i]>>3)&7)^(seed[i]&7);
+			int z = (seed[i]>>3)&7;
+			if (seed[i]&0x40) {
+				//horizontal
+				if (seed[i]&0x80) {
+					// horizontal bar x
+					for (int x=0; x<sizeX-(seed[i]&7); x++) {
+						if (x&1) map[x + z*sizeX + y*sizeX*sizeZ] = STONE_BRICK;
+						else     map[x + z*sizeX + y*sizeX*sizeZ] = STONE_BRICK_2;
+					}
+				} else {
+					// horizontal bar z
+					for (int x=0; x<sizeZ-(seed[i]&7); x++) {
+						if (x&1) map[z + x*sizeX + y*sizeX*sizeZ] = STONE_BRICK;
+						else     map[z + x*sizeX + y*sizeX*sizeZ] = STONE_BRICK_2;
+					}
 				}
 			} else {
-				// horizontal bar z
-				for (int x=0; x<sizeZ-(seed[i]&7); x++) {
-					if (x&1) map[z + x*sizeX + y*sizeX*sizeZ] = 12;
-					else     map[z + x*sizeX + y*sizeX*sizeZ] = 6;
+				if (seed[i]&0x80) {
+					// column
+					for (int x=0; x<sizeY; x++) {
+						map[y + z*sizeX + x*sizeX*sizeZ] = BRICK;
+					}
 				}
+				// nothing
 			}
-		} else {
-			if (seed[i]&0x80) {
-				// column
-				for (int x=0; x<sizeY; x++) {
-					map[y + z*sizeX + x*sizeX*sizeZ] = 1;
-				}
-			}
-			// nothing
-		}
-	}
+		} */
 
-	do {
-		gfx_ZeroScreen();
-		timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
-		timer_Set(1, 0);
-		drawMap();
-		time = timer_Get(1);
-		timer_Disable(1);
-		gfx_PrintStringXY("ASM:", 0, 0);
-		gfx_PrintInt((time*1000)/32768, 6);
-		gfx_PrintString("ms");
-		// SwapDraw();
-		while (!(key = os_GetCSC()));
-		if (key == sk_Clear) goto end;
-	} while (key != sk_Enter);
+		memset(map, 0, sizeof(map)); // air
+		generateMap();
 
-	// gfx_SetDraw(0);
-    do {
-		gfx_ZeroScreen();
-		timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
-		timer_Set(1, 0);
-		drawMap_C();
-		time = timer_Get(1);
-		timer_Disable(1);
-		gfx_PrintStringXY("C:", 18, 0);
-		gfx_PrintInt((time*1000)/32768, 6);
-		gfx_PrintString("ms");
-		while (!(key = os_GetCSC()));
-		if (key == sk_Clear) goto end;
-	} while (key != sk_Enter);
-	goto restart_test;
+		do {
+			gfx_ZeroScreen();
+			timer_Enable(1, TIMER_32K, TIMER_NOINT, TIMER_UP);
+			timer_Set(1, 0);
+			iso_DrawMap(map);
+			time = timer_Get(1);
+			timer_Disable(1);
+			gfx_SetTextXY(0, 0);
+			gfx_PrintInt(32768/time, 3);
+			gfx_PrintString("fps");
+			gfx_SwapDraw();
+			iso_SwapDraw();
+			key = os_GetCSC();
+			gfx_Wait();
+			if (key == sk_Enter) break;
+		} while (key != sk_Clear);
+	} while (key != sk_Clear);
+
 	end:;
     gfx_End();
 	return 0;
@@ -201,43 +261,27 @@ void generateMap(void){
                 if(c<3){
                     i = rand()%8;
                     if(i==0){
-                        map[x] = 2;
+                        map[x] = COAL_ORE; //coal ore
                     } else {
-                        map[x] = 7;
+                        map[x] = STONE; //stone
                     }
                 } else if(c==3){
-                    map[x] = 3;
+                    map[x] = DIRT;
                 } else if(c==4){
-                    map[x] = 3;
+                    map[x] = DIRT;
                     if(!(a>0 && a<6 && b>0 && b<6)){
-                        map[x] = 4;
+                        map[x] = GRASS_BLOCK;
                     }
                 } else {
-                    map[x] = 0xFF;
+                    map[x] = AIR;
                 }
             }
         }
     }
 
-    //0 brick stairs east
-    //1 brick
-    //2 coal ore
-    //3 dirt
-    //4 grass
-    //5 stone brick stairs east
-    //6 stone brick
-    //7 stone
-    //8 glass pane
-    //9 glass block
-    //10 water surface
-    //11 water full
-    //12 stone brick (alternating block)
-    //13 stone brick stairs east (alternating block)
-    //14 stone stairs east
-
     //air blocks
-    map[1+7*sizeX+4*sizeX*sizeZ] = -1;
-    map[4+7*sizeX+4*sizeX*sizeZ] = -1;
+    map[1+7*sizeX+4*sizeX*sizeZ] = AIR;
+    map[4+7*sizeX+4*sizeX*sizeZ] = AIR;
 
     //water
     for(a=6; a<=7; a++){
@@ -245,19 +289,20 @@ void generateMap(void){
             for(c=1; c<=4; c++){
 				int x = a+b*sizeX+c*sizeX*sizeZ;
                 if(c==4)
-                    map[x] = 10;
+                    map[x] = WATER_SURFACE;
 				else
-					map[x] = 11;
+					map[x] = WATER_FULL;
             }
         }
     }
 
     //floating water
-    map[0+7*sizeX+8*sizeX*sizeZ] = 10;
+    map[0+7*sizeX+8*sizeX*sizeZ] = WATER_FULL;
 
-    //floating glass block, glass pane
-    map[7+0*sizeX+7*sizeX*sizeZ] = 9;
-    map[7+0*sizeX+8*sizeX*sizeZ] = 8;
+    //floating glass block, glass pane east, glass pane west
+    map[7+0*sizeX+7*sizeX*sizeZ] = GLASS_BLOCK;
+    map[7+0*sizeX+8*sizeX*sizeZ] = GLASS_PANE_EAST;
+    map[7+0*sizeX+9*sizeX*sizeZ] = GLASS_PANE_WEST;
 
 
     //structure design
@@ -267,50 +312,50 @@ void generateMap(void){
         for(a=1; a<=5; a++){
 			int x = a+b*sizeX+5*sizeX*sizeZ;
             if((a+b+5)%2==0){
-                map[x] = 12;
+                map[x] = STONE_BRICK_2;
             } else {
-                map[x] = 6;
+                map[x] = STONE_BRICK;
             }
         }
     }
 
     //stairs
-    map[2+6*sizeX+5*sizeX*sizeZ] = 5;
-    map[3+6*sizeX+5*sizeX*sizeZ] = 13;
-    map[4+6*sizeX+5*sizeX*sizeZ] = 5;
+    map[2+6*sizeX+5*sizeX*sizeZ] = STONE_BRICK_STAIRS_EAST;
+    map[3+6*sizeX+5*sizeX*sizeZ] = STONE_BRICK_STAIRS_EAST_2;
+    map[4+6*sizeX+5*sizeX*sizeZ] = STONE_BRICK_STAIRS_EAST;
 
-    map[2+7*sizeX+4*sizeX*sizeZ] = 5;
-    map[3+7*sizeX+4*sizeX*sizeZ] = 13;
-    map[4+7*sizeX+4*sizeX*sizeZ] = 5;
+    map[2+7*sizeX+4*sizeX*sizeZ] = STONE_BRICK_STAIRS_EAST;
+    map[3+7*sizeX+4*sizeX*sizeZ] = STONE_BRICK_STAIRS_EAST_2;
+    map[4+7*sizeX+4*sizeX*sizeZ] = STONE_BRICK_STAIRS_EAST;
 
     //pillars
     for(c=6; c<=9; c++){
-        map[1+1*sizeX+c*sizeX*sizeZ] = 6;
-        map[5+1*sizeX+c*sizeX*sizeZ] = 6;
-        map[1+5*sizeX+c*sizeX*sizeZ] = 6;
+        map[1+1*sizeX+c*sizeX*sizeZ] = STONE_BRICK;
+        map[5+1*sizeX+c*sizeX*sizeZ] = STONE_BRICK;
+        map[1+5*sizeX+c*sizeX*sizeZ] = STONE_BRICK;
     }
 
     //crossbeams
-    map[4+1*sizeX+9*sizeX*sizeZ] = 12;
-    map[3+1*sizeX+9*sizeX*sizeZ] = 6;
-    map[2+1*sizeX+9*sizeX*sizeZ] = 12;
-    map[1+2*sizeX+9*sizeX*sizeZ] = 12;
-    map[1+3*sizeX+9*sizeX*sizeZ] = 6;
-    map[1+4*sizeX+9*sizeX*sizeZ] = 12;
+    map[4+1*sizeX+9*sizeX*sizeZ] = STONE_BRICK;
+    map[3+1*sizeX+9*sizeX*sizeZ] = STONE_BRICK_2;
+    map[2+1*sizeX+9*sizeX*sizeZ] = STONE_BRICK;
+    map[1+2*sizeX+9*sizeX*sizeZ] = STONE_BRICK;
+    map[1+3*sizeX+9*sizeX*sizeZ] = STONE_BRICK_2;
+    map[1+4*sizeX+9*sizeX*sizeZ] = STONE_BRICK;
 
     //windows
     for(c=6; c<9; c++){
-        map[4+1*sizeX+c*sizeX*sizeZ] = 9;
-        map[3+1*sizeX+c*sizeX*sizeZ] = 9;
-        map[2+1*sizeX+c*sizeX*sizeZ] = 9;
+        map[4+1*sizeX+c*sizeX*sizeZ] = GLASS_PANE_EAST;
+        map[3+1*sizeX+c*sizeX*sizeZ] = GLASS_PANE_EAST;
+        map[2+1*sizeX+c*sizeX*sizeZ] = GLASS_PANE_EAST;
 
-        map[1+2*sizeX+c*sizeX*sizeZ] = 8;
-        map[1+3*sizeX+c*sizeX*sizeZ] = 8;
-        map[1+4*sizeX+c*sizeX*sizeZ] = 8;
+        map[1+2*sizeX+c*sizeX*sizeZ] = GLASS_PANE_WEST;
+        map[1+3*sizeX+c*sizeX*sizeZ] = GLASS_PANE_WEST;
+        map[1+4*sizeX+c*sizeX*sizeZ] = GLASS_PANE_WEST;
     }
 
     //stair on top of structure
-    map[1+5*sizeX+9*sizeX*sizeZ] = 5;
+    map[1+5*sizeX+9*sizeX*sizeZ] = STONE_BRICK_STAIRS_EAST;
 
 	/* for(a=0; a<sizeX; a++) {
 		map[a + sizeX*(sizeZ-1)] = 1;
@@ -319,7 +364,7 @@ void generateMap(void){
 }
 
 
-void drawMap_C(void){
+/* void drawMap_C(void){
 	int i = 0;
     for(c=0; c<sizeY; c++){
         for(a=0; a<sizeX; a++){
@@ -334,3 +379,4 @@ void drawMap_C(void){
         }
     }
 }
+ */

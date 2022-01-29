@@ -6,22 +6,27 @@ built palette with [91] indices.
 palette quality : 100.00%
 transparent color index : 0
 transparent color : 0xFFFF
-15:
+20:
  brick_stairs_east : 100.00%
+ brick_stairs_west : 100.00%
  brick : 100.00%
  coal_ore : 100.00%
  dirt : 100.00%
  grass_block : 100.00%
  stone_brick_stairs_east : 100.00%
+ stone_brick_stairs_west : 100.00%
  stone_brick : 100.00%
  stone : 100.00%
- glass_pane : 100.00%
+ glass_pane_east : 100.00%
+ glass_pane_west : 100.00%
  glass_block : 100.00%
  water_surface : 100.00%
  water_full : 100.00%
  stone_brick_2 : 100.00%
  stone_brick_stairs_east_2 : 100.00%
+ stone_brick_stairs_west_2 : 100.00%
  stone_stairs_east : 100.00%
+ stone_stairs_west : 100.00%
 
 converted in 0 s
 
